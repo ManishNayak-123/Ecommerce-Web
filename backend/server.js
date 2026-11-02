@@ -23,7 +23,7 @@ const server = http.createServer(app); // Wrap Express app in Node's HTTP server
 // Initialize Socket.io with CORS configuration
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://ecommerce-web-g9rx.onrender.com",
     methods: ["GET", "POST", "PUT"],
     credentials: true,
   },
@@ -31,7 +31,7 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://ecommerce-web-g9rx.onrender.com",
     credentials: true,
   })
 );

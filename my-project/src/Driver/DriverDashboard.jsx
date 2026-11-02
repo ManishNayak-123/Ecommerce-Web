@@ -9,7 +9,7 @@ import { DRIVER_API_END_POINT } from "../Utils/Api";
 import toast from "react-hot-toast";
 
 // Connect to backend Socket.io server
-const socket = io("http://localhost:8000");
+const socket = io("https://ecommerce-web-g9rx.onrender.com");
 
 export default function DriverDashboard() {
   const [assignedOrders, setAssignedOrders] = useState([]);

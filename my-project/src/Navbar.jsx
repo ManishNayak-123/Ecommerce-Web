@@ -15,7 +15,7 @@ import Login from "./Login";
 import Register from "./Register";
 
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+  import.meta.env.VITE_API_BASE_URL || "https://ecommerce-web-g9rx.onrender.com"
 ).replace(/\/+$/, "");
 
 // Helper function to resolve the user's uploaded profile image path correctly
