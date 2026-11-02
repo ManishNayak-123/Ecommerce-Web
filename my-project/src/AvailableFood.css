@@ -1,0 +1,31 @@
+.available-food-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.dish-item {
+  width: 150px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.dish-item.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dish-item img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dish-item p {
+  margin-top: 10px;
+}
