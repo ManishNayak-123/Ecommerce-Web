@@ -21,9 +21,28 @@ const _dirname = path.resolve();
 const server = http.createServer(app); // Wrap Express app in Node's HTTP server for Socket.io
 
 // Initialize Socket.io with CORS configuration
+// const io = new Server(server, {
+//   cors: {
+//     origin: "https://ecommerce-web-g9rx.onrender.com",
+//     methods: ["GET", "POST", "PUT"],
+//     credentials: true,
+//   },
+// });
+
+// app.use(
+//   cors({
+//     origin: "https://ecommerce-web-g9rx.onrender.com",
+//     credentials: true,
+//   })
+// );
+
 const io = new Server(server, {
   cors: {
-    origin: "https://ecommerce-web-g9rx.onrender.com",
+    origin: [
+      "http://localhost:5173", 
+      "https://ecommerce-web-g9rx.onrender.com", 
+      "https://ecommerce-web-1-dp4n.onrender.com"
+    ],
     methods: ["GET", "POST", "PUT"],
     credentials: true,
   },
@@ -31,7 +50,11 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: "https://ecommerce-web-g9rx.onrender.com",
+    origin: [
+      "http://localhost:5173", 
+      "https://ecommerce-web-g9rx.onrender.com", 
+      "https://ecommerce-web-1-dp4n.onrender.com"
+    ],
     credentials: true,
   })
 );
