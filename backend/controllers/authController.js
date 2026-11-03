@@ -1252,8 +1252,34 @@ export const resetPassword = async (req, res) => {
 // LOGOUT
 // POST /api/v1/user/logout
 // ----------------------------------
+// export const logout = async (req, res) => {
+//   try {
+//     return res.status(200).json({
+//       success: true,
+//       message: "Logged out successfully.",
+//     });
+//   } catch (error) {
+//     console.error("Logout error:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error during logout.",
+//     });
+//   }
+// };
+
 export const logout = async (req, res) => {
   try {
+    const isProduction = process.env.NODE_ENV === "production";
+
+    // Clear the authentication cookie matching your login configuration
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProduction,                       // True on Render (HTTPS)
+      sameSite: isProduction ? "none" : "lax",    // 'none' for cross-site Render domains
+      path: "/",                                  // Ensures the cookie is cleared globally
+    });
+
     return res.status(200).json({
       success: true,
       message: "Logged out successfully.",
