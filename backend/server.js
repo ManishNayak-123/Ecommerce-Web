@@ -132,7 +132,8 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173", 
       "https://ecommerce-web-g9rx.onrender.com", 
-      "https://ecommerce-web-1-dp4n.onrender.com"
+      "https://ecommerce-web-1-dp4n.onrender.com",
+      "https://ecommerce-web-2-x0pg.onrender.com"
     ],
     methods: ["GET", "POST", "PUT"],
     credentials: true,
@@ -144,7 +145,8 @@ app.use(
     origin: [
       "http://localhost:5173", 
       "https://ecommerce-web-g9rx.onrender.com", 
-      "https://ecommerce-web-1-dp4n.onrender.com"
+      "https://ecommerce-web-1-dp4n.onrender.com",
+      "https://ecommerce-web-2-x0pg.onrender.com"
     ],
     credentials: true,
   })
