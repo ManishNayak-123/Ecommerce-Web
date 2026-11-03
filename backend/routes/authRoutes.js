@@ -9,6 +9,7 @@ import {
   logout,
   forgotPassword,
   resetPassword,
+  resendOtp,
 } from "../controllers/authController.js";
 import { isAuthenticated } from "../middleware/authMiddleware.js";
 
