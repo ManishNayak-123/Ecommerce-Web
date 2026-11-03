@@ -175,7 +175,7 @@
 //       },
 //       {
 //         upsert: true,
-//         returnDocument: "after",
+//         new: true,
 //         runValidators: true,
 //         setDefaultsOnInsert: true,
 //       }
@@ -209,6 +209,63 @@
 //     return res.status(500).json({
 //       success: false,
 //       message: "Internal server error during signup.",
+//     });
+//   }
+// };
+
+// // ----------------------------------
+// // RESEND OTP
+// // POST /api/v1/user/resend-otp
+// // ----------------------------------
+// export const resendOtp = async (req, res) => {
+//   try {
+//     const { email } = req.body ?? {};
+
+//     if (typeof email !== "string" || !isValidEmail(email.trim())) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Enter a valid email address.",
+//       });
+//     }
+
+//     const normalizedEmail = email.trim().toLowerCase();
+
+//     const pending = await PendingRegistration.findOne({ email: normalizedEmail });
+
+//     if (!pending) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No pending registration found. Please sign up again.",
+//       });
+//     }
+
+//     const otp = generateOtp();
+//     const otpHash = hashOtp(otp);
+
+//     pending.otpHash = otpHash;
+//     pending.expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+//     pending.attempts = 0;
+//     await pending.save();
+
+//     try {
+//       await sendOtpEmail(normalizedEmail, otp);
+//     } catch (error) {
+//       console.error("Resend OTP email error:", error.message);
+//       return res.status(502).json({
+//         success: false,
+//         message: "Unable to resend OTP. Check email configuration.",
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "A new OTP has been sent to your email.",
+//     });
+//   } catch (error) {
+//     console.error("Resend OTP error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error during resend OTP.",
 //     });
 //   }
 // };
@@ -492,7 +549,6 @@
 
 //     const normalizedEmail = email.trim().toLowerCase();
 
-//     // Select resetPasswordOtpHash field explicitly if it's set to select: false in schema
 //     const user = await User.findOne({ email: normalizedEmail }).select("+resetPasswordOtpHash");
 
 //     if (!user) {
@@ -539,7 +595,6 @@
 //       });
 //     }
 
-//     // Hash the new password and clear out reset fields
 //     const passwordHash = await bcrypt.hash(newPassword, 12);
 //     user.password = passwordHash;
 //     user.resetPasswordOtpHash = undefined;
@@ -731,15 +786,15 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Capture uploaded file filename
-    const profilePicture = req.file ? req.file.filename : "";
+    // ✅ Capture Cloudinary HTTPS URL from req.file.path instead of local filename
+    const profilePicture = req.file ? req.file.path : "";
 
     // Hash password and generate OTP
     const passwordHash = await bcrypt.hash(password, 12);
     const otp = generateOtp();
     const otpHash = hashOtp(otp);
 
-    // Create or replace pending registration with profilePicture filename
+    // Create or replace pending registration with profilePicture URL
     await PendingRegistration.findOneAndUpdate(
       { email: normalizedEmail },
       {
@@ -1075,13 +1130,11 @@ export const forgotPassword = async (req, res) => {
     const otp = generateOtp();
     const otpHash = hashOtp(otp);
 
-    // Attach temporary reset fields to user
     user.resetPasswordOtpHash = otpHash;
-    user.resetPasswordExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins expiry
+    user.resetPasswordExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
     user.resetPasswordAttempts = 0;
     await user.save();
 
-    // Send OTP email
     try {
       await sendOtpEmail(normalizedEmail, otp);
     } catch (error) {

@@ -483,7 +483,7 @@ export default function Meals() {
       <div>
         <Navbar />
 
-        <section className="py-12 px-4 sm:px-6 md:px-8 lg:px-16 max-w-7xl mx-auto w-full">
+        <section className="py-12 mt-10 px-4 sm:px-6 md:px-8 lg:px-16 max-w-7xl mx-auto w-full">
           {/* Header & Filters */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>

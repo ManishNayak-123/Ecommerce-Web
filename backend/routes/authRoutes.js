@@ -67,7 +67,7 @@
 // export default router;
 
 import express from "express";
-import upload from "../middleware/multer.js";
+
 
 import {
   signup,
@@ -79,11 +79,13 @@ import {
   resendOtp,
 } from "../controllers/authController.js";
 import { isAuthenticated } from "../middleware/authMiddleware.js";
+import { uploadCloud } from "../middleware/multer.js";
+
 
 const router = express.Router();
 
 // Public Authentication Routes (No isAuthenticated)
-router.post("/signup", upload.single("profilePicture"), signup);
+router.post("/signup", uploadCloud.single("profilePicture"), signup);
 router.post("/verify-otp", verifyOtp);
 router.post("/resend-otp", resendOtp);
 router.post("/signin", signin);
