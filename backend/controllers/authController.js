@@ -1445,15 +1445,15 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Safely capture Cloudinary HTTPS URL from req.file
-    const profilePicture = req.file ? (req.file.path || req.file.secure_url || "") : "";
+    // Capture Cloudinary HTTPS URL from req.file.path[cite: 9]
+    const profilePicture = req.file ? req.file.path : "";
 
     // Hash password and generate OTP
     const passwordHash = await bcrypt.hash(password, 12);
     const otp = generateOtp();
     const otpHash = hashOtp(otp);
 
-    // Safely update or insert pending registration using standard mongoose flags
+    // Create or replace pending registration with profilePicture URL[cite: 9]
     await PendingRegistration.findOneAndUpdate(
       { email: normalizedEmail },
       {
@@ -1469,8 +1469,9 @@ export const signup = async (req, res) => {
       },
       {
         upsert: true,
-        new: true, // Safe legacy/modern support to prevent 500 crash
+        new: true,
         runValidators: true,
+        setDefaultsOnInsert: true,
       }
     );
 
@@ -1482,6 +1483,7 @@ export const signup = async (req, res) => {
 
       await PendingRegistration.deleteOne({
         email: normalizedEmail,
+        otpHash,
       });
 
       return res.status(502).json({
@@ -1752,6 +1754,153 @@ export const signin = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error during signin.",
+    });
+  }
+};
+
+// ----------------------------------
+// FORGOT PASSWORD
+// POST /api/v1/user/forgot-password
+// ----------------------------------
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body ?? {};
+
+    if (typeof email !== "string" || !isValidEmail(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "Enter a valid email address.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No user found with this email address.",
+      });
+    }
+
+    const otp = generateOtp();
+    const otpHash = hashOtp(otp);
+
+    user.resetPasswordOtpHash = otpHash;
+    user.resetPasswordExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    user.resetPasswordAttempts = 0;
+    await user.save();
+
+    try {
+      await sendOtpEmail(normalizedEmail, otp);
+    } catch (error) {
+      console.error("Forgot password OTP email error:", error.message);
+      return res.status(502).json({
+        success: false,
+        message: "Unable to send password reset OTP. Check email configuration.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset OTP sent to your email.",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error during forgot password process.",
+    });
+  }
+};
+
+// ----------------------------------
+// RESET PASSWORD
+// POST /api/v1/user/reset-password
+// ----------------------------------
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body ?? {};
+
+    if (
+      typeof email !== "string" ||
+      !isValidEmail(email.trim()) ||
+      typeof otp !== "string" ||
+      !/^\d{6}$/.test(otp) ||
+      typeof newPassword !== "string" ||
+      newPassword.length < 6
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Provide a valid email, 6-digit OTP, and a new password (at least 6 characters).",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail }).select("+resetPasswordOtpHash");
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request or user not found.",
+      });
+    }
+
+    if (
+      !user.resetPasswordExpiresAt ||
+      user.resetPasswordExpiresAt.getTime() <= Date.now()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired. Please request a new password reset.",
+      });
+    }
+
+    if (user.resetPasswordAttempts >= 5) {
+      return res.status(429).json({
+        success: false,
+        message: "Too many failed attempts. Please request a new password reset.",
+      });
+    }
+
+    const submittedHash = hashOtp(otp);
+
+    const isOtpCorrect =
+      typeof user.resetPasswordOtpHash === "string" &&
+      /^[a-f0-9]{64}$/i.test(user.resetPasswordOtpHash) &&
+      crypto.timingSafeEqual(
+        Buffer.from(submittedHash, "hex"),
+        Buffer.from(user.resetPasswordOtpHash, "hex")
+      );
+
+    if (!isOtpCorrect) {
+      user.resetPasswordAttempts = (user.resetPasswordAttempts || 0) + 1;
+      await user.save();
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    user.password = passwordHash;
+    user.resetPasswordOtpHash = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    user.resetPasswordAttempts = undefined;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully! You can now log in.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error during password reset.",
     });
   }
 };
