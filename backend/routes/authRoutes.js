@@ -19,7 +19,7 @@ router.post("/signup", upload.single("profilePicture"), signup,isAuthenticated);
 
 // Verify OTP sent to the user's email[cite: 6]
 router.post("/verify-otp", verifyOtp,isAuthenticated);
-
+router.post("/resend-otp", resendOtp,isAuthenticated);
 // Sign in after successful registration[cite: 6]
 router.post("/signin", signin,isAuthenticated);
 
