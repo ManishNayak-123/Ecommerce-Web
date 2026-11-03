@@ -51,7 +51,7 @@ export const uploadFood = async (req, res) => {
   try {
     const { title, category, type, price, calories, description, isPopular, prepTime, rating, reviews } = req.body;
     
-// 🛠️ FIX: Retrieve the Cloudinary secure URL from req.file.path or req.file.secure_url
+    // Retrieve the Cloudinary secure URL from req.file.path or req.file.secure_url[cite: 11]
     const image = req.file ? (req.file.path || req.file.secure_url) : "";
 
     if (!image) {
@@ -64,10 +64,10 @@ export const uploadFood = async (req, res) => {
       type,
       price: Number(price),
       calories,
-      prepTime,
-      rating: rating ? Number(rating) : 4.8,
+      prepTime: prepTime || "20-25 min",
+      rating: rating ? String(rating) : "4.8",
       reviews: reviews ? Number(reviews) : 15,
-      image, // Saves the complete Cloudinary URL directly to MongoDB
+      image, // Saves the complete Cloudinary URL directly to MongoDB[cite: 11]
       description,
       isPopular: isPopular === "true" || isPopular === true,
     });
