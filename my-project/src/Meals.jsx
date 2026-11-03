@@ -1,11 +1,10 @@
 
 
-
 // import React, { useState, useEffect } from "react";
 // import Navbar from "./Navbar";
 // import Footer from "./Footer";
-// import { useDispatch, useSelector } from "react-redux"; // Added useSelector
-// import { useNavigate } from "react-router"; // Added useNavigate
+// import { useDispatch, useSelector } from "react-redux";
+// import { useNavigate } from "react-router";
 // import { addToCart } from "./ReduxToolKit/cartSlice";
 // import axios from "axios";
 // import { FOOD_API_END_POINT } from "./Utils/Api";
@@ -52,22 +51,26 @@
 //   const dispatch = useDispatch();
 //   const navigate = useNavigate();
 
-//   // 1. Get user authentication state from Redux (adjust path to match your store state key, e.g., state.auth.user)
+//   // Get user authentication state from Redux
 //   const user = useSelector((state) => state.auth?.user || state.user?.user);
 
-//   // 2. Add to Cart Handler with Auth Check
+//   // Add to Cart Handler with Resolved Image URL
 //   const handleAddToCart = (meal) => {
-//     // Check Redux user state or localStorage token
 //     const token = localStorage.getItem("token");
 
 //     if (!user && !token) {
-//       // Redirect to login form if user is not registered/logged in
 //       navigate("/login");
 //       return;
 //     }
 
-//     // Dispatch action if user is authenticated
-//     dispatch(addToCart(meal));
+//     // Ensure the cart receives the fully resolved image URL
+//     const resolvedImage = resolveMealImage(meal);
+//     const mealWithResolvedImage = {
+//       ...meal,
+//       image: resolvedImage,
+//     };
+
+//     dispatch(addToCart(mealWithResolvedImage));
 //   };
 
 //   // Fetch meals from backend
@@ -114,7 +117,7 @@
 //       <div>
 //         <Navbar />
 
-//         <section className="py-12 px-4 sm:px-6 md:px-8 lg:px-16 max-w-7xl mx-auto w-full">
+//         <section className="py-12 mt-10 px-4 sm:px-6 md:px-8 lg:px-16 max-w-7xl mx-auto w-full">
 //           {/* Header & Filters */}
 //           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
 //             <div>
@@ -285,7 +288,6 @@
 //                             </span>
 //                           </div>
 
-//                           {/* Updated Add to Cart Button */}
 //                           <button
 //                             type="button"
 //                             onClick={() => handleAddToCart(meal)}
@@ -429,7 +431,7 @@ export default function Meals() {
       return;
     }
 
-    // Ensure the cart receives the fully resolved image URL
+    // Ensure the cart receives the fully resolved absolute image URL
     const resolvedImage = resolveMealImage(meal);
     const mealWithResolvedImage = {
       ...meal,

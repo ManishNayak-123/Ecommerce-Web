@@ -1,7 +1,9 @@
+
+
 // import React from "react";
 // import { useSelector, useDispatch } from "react-redux";
 // import { Link } from "react-router"; // Adjust to 'react-router-dom' if that's what you use
-// import { updateQuantity, removeFromCart } from "./ReduxToolKit/cartSlice.js"; // Make sure this path matches your file structure
+// import { updateQuantity, removeFromCart } from "./ReduxToolKit/cartSlice.js";
 // import Navbar from "./Navbar";
 // import Footer from "./Footer";
 
@@ -25,6 +27,18 @@
 //   // Free shipping rules (Free over ₹500, otherwise ₹40 flat fee)[cite: 1]
 //   const deliveryCharges = subtotalPrice > 500 || subtotalPrice === 0 ? 0 : 40;
 //   const grandTotal = subtotalPrice + deliveryCharges;
+
+//   // Helper to resolve image source safely (handles Cloudinary & standard absolute URLs)
+//   const getProductImage = (item) => {
+//     const imgUrl = item.image || item.imageUrl || item.secure_url;
+//     if (!imgUrl) return "https://via.placeholder.com/150?text=No+Image";
+//     // If it's already a full URL (Cloudinary / http / https), use it directly
+//     if (imgUrl.startsWith("http://") || imgUrl.startsWith("https://")) {
+//       return imgUrl;
+//     }
+//     // Fallback for any legacy local uploads if they still exist
+//     return `https://res.cloudinary.com/dwvbzj1gs/image/upload/${imgUrl}`;
+//   };
 
 //   return (
 //     <div className="min-h-screen w-full bg-orange-50 text-slate-900 pt-24 flex flex-col justify-between">
@@ -66,23 +80,17 @@
 
 //                 {cartItems.map((item) => (
 //                   <div
-//                     key={item.id}
+//                     key={item.id || item._id}
 //                     className="flex flex-col sm:flex-row items-start justify-between border-b border-slate-100 last:border-0 py-5 gap-4"
 //                   >
 //                     {/* Item Card Context Elements */}
 //                     <div className="flex gap-4 items-start w-full sm:max-w-md">
 //                       <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
-//                         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
-//                           <img
-//                             src={
-//                               item.image?.startsWith("http")
-//                                 ? item.image
-//                                 : `http://localhost:8000/uploads/${item.image}`
-//                             }
-//                             alt={item.title}
-//                             className="w-full h-full object-cover"
-//                           />
-//                         </div>
+//                         <img
+//                           src={getProductImage(item)}
+//                           alt={item.title || "Tiffin Item"}
+//                           className="w-full h-full object-cover"
+//                         />
 //                       </div>
 //                       <div className="space-y-1">
 //                         <h3 className="font-extrabold text-base sm:text-lg text-slate-800 leading-snug">
@@ -100,9 +108,9 @@
 //                               onClick={() =>
 //                                 dispatch(
 //                                   updateQuantity({
-//                                     id: item.id,
+//                                     id: item.id || item._id,
 //                                     quantity: item.quantity - 1,
-//                                   }),
+//                                   })
 //                                 )
 //                               }
 //                               className="w-7 h-7 flex items-center justify-center font-bold text-slate-600 hover:bg-white rounded-lg active:scale-90 transition disabled:opacity-40"
@@ -117,9 +125,9 @@
 //                               onClick={() =>
 //                                 dispatch(
 //                                   updateQuantity({
-//                                     id: item.id,
+//                                     id: item.id || item._id,
 //                                     quantity: item.quantity + 1,
-//                                   }),
+//                                   })
 //                                 )
 //                               }
 //                               className="w-7 h-7 flex items-center justify-center font-bold text-slate-600 hover:bg-white rounded-lg active:scale-90 transition"
@@ -129,7 +137,7 @@
 //                           </div>
 
 //                           <button
-//                             onClick={() => dispatch(removeFromCart(item.id))}
+//                             onClick={() => dispatch(removeFromCart(item.id || item._id))}
 //                             className="text-xs font-bold text-red-500 hover:text-red-600 transition underline underline-offset-4"
 //                           >
 //                             Delete
@@ -208,10 +216,9 @@
 //   );
 // }
 
-
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router"; // Adjust to 'react-router-dom' if that's what you use
+import { Link } from "react-router";
 import { updateQuantity, removeFromCart } from "./ReduxToolKit/cartSlice.js";
 import Navbar from "./Navbar";
 import Footer from "./Footer";

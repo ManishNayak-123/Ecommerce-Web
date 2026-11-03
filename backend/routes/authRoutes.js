@@ -95,6 +95,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 
 // Protected Route
-router.post("/logout", isAuthenticated, logout);
+router.post("/logout", logout);
 
 export default router;
