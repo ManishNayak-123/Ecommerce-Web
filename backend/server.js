@@ -231,9 +231,6 @@ const server = http.createServer(app);
 
 // All allowed frontend origins including your latest Render URLs
 const allowedOrigins = [
-  "http://localhost:5173", 
-  // "https://ecommerce-web-g9rx.onrender.com", 
-  // "https://ecommerce-web-1-dp4n.onrender.com",
   "https://ecommerce-web-2-x0pg.onrender.com"
 ];
 

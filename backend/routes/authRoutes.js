@@ -78,7 +78,7 @@ import {
   resetPassword,
   resendOtp,
 } from "../controllers/authController.js";
-import { isAuthenticated } from "../middleware/authMiddleware.js";
+
 import { uploadCloud } from "../middleware/multer.js";
 
 
