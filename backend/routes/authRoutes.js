@@ -80,12 +80,13 @@ import {
 } from "../controllers/authController.js";
 
 import { uploadCloud } from "../middleware/multer.js";
+import { isAuthenticated } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();
 
 // Public Authentication Routes (No isAuthenticated)
-router.post("/signup", uploadCloud.single("profilePicture"), signup);
+router.post("/signup", uploadCloud.single("profilePicture"), signup, isAuthenticated);
 router.post("/verify-otp", verifyOtp);
 router.post("/resend-otp", resendOtp);
 router.post("/signin", signin);
