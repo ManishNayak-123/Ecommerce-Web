@@ -12,7 +12,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 
   (window.location.hostname === "localhost" 
     ? "http://localhost:8000" 
-    : "https://ecommerce-web-2-x0pg.onrender.com");
+    : "https://ecommerce-web-3-py45.onrender.com/");
 
 export const USER_API_END_POINT = `${API_BASE_URL}/api/v1/user`;
 export const FOOD_API_END_POINT = `${API_BASE_URL}/api/v1/food`;
