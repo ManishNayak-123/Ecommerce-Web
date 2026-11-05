@@ -230,110 +230,60 @@
 // }
 
 
-// import "dotenv/config";
-// import nodemailer from "nodemailer";
-
-// const emailUser = process.env.EMAIL_USER?.trim();
-// const emailPassword = process.env.EMAIL_APP_PASSWORD?.trim();
-
-// if (!emailUser || !emailPassword) {
-//   console.error("❌ CRITICAL: Email credentials are missing from environment variables.");
-// }
-
-// // Configured using standard secure Gmail SMTP ports
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 465,
-//   secure: true, 
-//   auth: {
-//     user: emailUser,
-//     pass: emailPassword,
-//   },
-//   tls: {
-//     rejectUnauthorized: false
-//   },
-//   connectionTimeout: 10000, 
-//   greetingTimeout: 10000,
-//   socketTimeout: 10000,
-// });
-
-// export default async function sendOtpEmail(email, otp) {
-//   if (!emailUser || !emailPassword) {
-//     throw new Error("SMTP configuration is incomplete. Check EMAIL_USER and EMAIL_APP_PASSWORD.");
-//   }
-
-//   try {
-//     const mailOptions = {
-//       from: `"Your E-Commerce Store" <${emailUser}>`,
-//       to: email,
-//       subject: "Your registration OTP",
-//       text: `Your OTP is ${otp}. It expires in 5 minutes.`,
-//       html: `
-//         <div style="font-family: Arial, sans-serif; padding: 20px;">
-//           <h2>Email Verification</h2>
-//           <p>Your registration verification code is:</p>
-//           <h1 style="letter-spacing: 6px; color: #f97316;">${otp}</h1>
-//           <p>This code expires in 5 minutes.</p>
-//           <p>Do not share this code with anyone.</p>
-//         </div>
-//       `,
-//     };
-
-//     const result = await transporter.sendMail(mailOptions);
-//     console.log("✅ OTP email sent successfully via Gmail:", result.messageId);
-//     return result;
-//   } catch (error) {
-//     console.error("❌ Gmail SMTP Dispatch Failed Detail:", error);
-//     throw new Error(`Gmail Error: ${error.message}`);
-//   }
-// }
-
 import "dotenv/config";
-import axios from "axios";
+import nodemailer from "nodemailer";
 
-const apiKey = process.env.BREVO_API_KEY?.trim();
-const senderEmail = process.env.EMAIL_USER?.trim() || "c1907f001@smtp-brevo.com";
+const emailUser = process.env.EMAIL_USER?.trim();
+const emailPassword = process.env.EMAIL_APP_PASSWORD?.trim();
 
-if (!apiKey) {
-  console.error("❌ CRITICAL: BREVO_API_KEY is missing from environment variables.");
+if (!emailUser || !emailPassword) {
+  console.error("❌ CRITICAL: Email credentials are missing from environment variables.");
 }
 
+// Configured using standard secure Gmail SMTP ports
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, 
+  auth: {
+    user: emailUser,
+    pass: emailPassword,
+  },
+  tls: {
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 10000, 
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+});
+
 export default async function sendOtpEmail(email, otp) {
-  if (!apiKey) {
-    throw new Error("Email service configuration is incomplete. BREVO_API_KEY is required.");
+  if (!emailUser || !emailPassword) {
+    throw new Error("SMTP configuration is incomplete. Check EMAIL_USER and EMAIL_APP_PASSWORD.");
   }
 
   try {
-    const response = await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        sender: { name: "Your E-Commerce Store", email: senderEmail },
-        to: [{ email: email }],
-        subject: "Your registration OTP",
-        htmlContent: `
-          <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>Email Verification</h2>
-            <p>Your registration verification code is:</p>
-            <h1 style="letter-spacing: 6px; color: #f97316;">${otp}</h1>
-            <p>This code expires in 5 minutes.</p>
-            <p>Do not share this code with anyone.</p>
-          </div>
-        `,
-      },
-      {
-        headers: {
-          "api-key": apiKey,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        timeout: 10000,
-      }
-    );
+    const mailOptions = {
+      from: `"Your E-Commerce Store" <${emailUser}>`,
+      to: email,
+      subject: "Your registration OTP",
+      text: `Your OTP is ${otp}. It expires in 5 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Email Verification</h2>
+          <p>Your registration verification code is:</p>
+          <h1 style="letter-spacing: 6px; color: #f97316;">${otp}</h1>
+          <p>This code expires in 5 minutes.</p>
+          <p>Do not share this code with anyone.</p>
+        </div>
+      `,
+    };
 
-    console.log("✅ OTP email sent successfully via Brevo API:", response.data.messageId);
-    return response.data;
+    const result = await transporter.sendMail(mailOptions);
+    console.log("✅ OTP email sent successfully via Gmail:", result.messageId);
+    return result;
   } catch (error) {
-    console.error("❌ Brevo API Dispatch Failed:", error.response?.data || error.message);
-    throw new Error(`Email Service Error: ${error.response?.data?.message || error.message}`);
+    console.error("❌ Gmail SMTP Dispatch Failed Detail:", error);
+    throw new Error(`Gmail Error: ${error.message}`);
   }
 }
