@@ -294,15 +294,7 @@ import axios from "axios";
 const apiKey = process.env.BREVO_API_KEY?.trim();
 const senderEmail = process.env.EMAIL_USER?.trim();
 
-if (!apiKey || !senderEmail) {
-  console.error("❌ CRITICAL: BREVO_API_KEY or EMAIL_USER is missing from environment variables.");
-}
-
 export default async function sendOtpEmail(email, otp) {
-  if (!apiKey || !senderEmail) {
-    throw new Error("Email service configuration is incomplete. Check BREVO_API_KEY and EMAIL_USER.");
-  }
-
   try {
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
@@ -316,7 +308,6 @@ export default async function sendOtpEmail(email, otp) {
             <p>Your registration verification code is:</p>
             <h1 style="letter-spacing: 6px; color: #f97316;">${otp}</h1>
             <p>This code expires in 5 minutes.</p>
-            <p>Do not share this code with anyone.</p>
           </div>
         `,
       },
@@ -330,10 +321,11 @@ export default async function sendOtpEmail(email, otp) {
       }
     );
 
-    console.log("✅ OTP email sent successfully via Brevo API:", response.data.messageId);
+    console.log("✅ Brevo API Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Brevo API Dispatch Failed:", error.response?.data || error.message);
+    // 🔍 This will print the exact reason Brevo rejected the request in your server logs
+    console.error("❌ Detailed Brevo Error Response:", error.response?.data || error.message);
     throw new Error(`Email Service Error: ${error.response?.data?.message || error.message}`);
   }
 }
