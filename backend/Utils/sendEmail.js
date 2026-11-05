@@ -176,31 +176,75 @@
 //   }
 // }
 
+// import "dotenv/config";
+// import nodemailer from "nodemailer";
+
+// const emailUser = process.env.EMAIL_USER?.trim();
+// const emailPassword = process.env.EMAIL_APP_PASSWORD?.trim();
+
+// console.log("Email user exists:", Boolean(emailUser));
+// console.log("Email password exists:", Boolean(emailPassword));
+
+// if (!emailUser || !emailPassword) {
+//   throw new Error("Email credentials are missing from the environment");
+// }
+
+// // Using Nodemailer's built-in 'service: gmail' handles Google's port/security defaults securely
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: emailUser,
+//     pass: emailPassword,
+//   },
+//   // Connection limits to prevent Render hanging
+//   pool: true,
+//   maxConnections: 1,
+//   rateDelta: 20000,
+//   rateLimit: 5,
+// });
+
+// export default async function sendOtpEmail(email, otp) {
+//   try {
+//     const result = await transporter.sendMail({
+//       from: `"Your E-Commerce Store" <${emailUser}>`,
+//       to: email,
+//       subject: "Your registration OTP",
+//       text: `Your OTP is ${otp}. It expires in 5 minutes.`,
+//       html: `
+//         <div style="font-family: Arial, sans-serif; padding: 20px;">
+//           <h2>Email Verification</h2>
+//           <p>Your registration verification code is:</p>
+//           <h1 style="letter-spacing: 6px; color: #f97316;">${otp}</h1>
+//           <p>This code expires in 5 minutes.</p>
+//           <p>Do not share this code with anyone.</p>
+//         </div>
+//       `,
+//     });
+    
+//     console.log("OTP email sent successfully via Gmail:", result.messageId);
+//     return result;
+//   } catch (error) {
+//     console.error("Gmail SMTP dispatch failed:", error.message);
+//     throw new Error(`Gmail Error: ${error.message}`);
+//   }
+// }
+
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
 const emailUser = process.env.EMAIL_USER?.trim();
 const emailPassword = process.env.EMAIL_APP_PASSWORD?.trim();
 
-console.log("Email user exists:", Boolean(emailUser));
-console.log("Email password exists:", Boolean(emailPassword));
-
 if (!emailUser || !emailPassword) {
   throw new Error("Email credentials are missing from the environment");
 }
 
-// Using Nodemailer's built-in 'service: gmail' handles Google's port/security defaults securely
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: emailUser,
     pass: emailPassword,
   },
-  // Connection limits to prevent Render hanging
-  pool: true,
-  maxConnections: 1,
-  rateDelta: 20000,
-  rateLimit: 5,
 });
 
 export default async function sendOtpEmail(email, otp) {
