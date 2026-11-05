@@ -236,20 +236,33 @@ const emailUser = process.env.EMAIL_USER?.trim();
 const emailPassword = process.env.EMAIL_APP_PASSWORD?.trim();
 
 if (!emailUser || !emailPassword) {
-  throw new Error("Email credentials are missing from the environment");
+  console.error("❌ CRITICAL: Email credentials are missing from environment variables.");
 }
 
+// Create transporter with hardcoded connection limits to avoid hanging streams
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // Use SSL/TLS
   auth: {
     user: emailUser,
     pass: emailPassword,
   },
+  tls: {
+    rejectUnauthorized: false // Prevents certificate rejection crashes on cloud hosts
+  },
+  connectionTimeout: 8000, // Fail fast after 8 seconds instead of hanging
+  greetingTimeout: 8000,
+  socketTimeout: 8000,
 });
 
 export default async function sendOtpEmail(email, otp) {
+  if (!emailUser || !emailPassword) {
+    throw new Error("SMTP configuration is incomplete. Check EMAIL_USER and EMAIL_APP_PASSWORD.");
+  }
+
   try {
-    const result = await transporter.sendMail({
+    const mailOptions = {
       from: `"Your E-Commerce Store" <${emailUser}>`,
       to: email,
       subject: "Your registration OTP",
@@ -263,12 +276,13 @@ export default async function sendOtpEmail(email, otp) {
           <p>Do not share this code with anyone.</p>
         </div>
       `,
-    });
-    
-    console.log("OTP email sent successfully via Gmail:", result.messageId);
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log("✅ OTP email sent successfully via Gmail:", result.messageId);
     return result;
   } catch (error) {
-    console.error("Gmail SMTP dispatch failed:", error.message);
-    throw new Error(`Gmail Error: ${error.message}`);
+    console.error("❌ Gmail SMTP Dispatch Failed:", error.message);
+    throw new Error(`SMTP Error: ${error.message}. (Note: If hosted on Render/Free tier, ports might be blocked).`);
   }
 }
