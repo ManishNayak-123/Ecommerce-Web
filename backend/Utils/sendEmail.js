@@ -239,21 +239,21 @@ if (!emailUser || !emailPassword) {
   console.error("❌ CRITICAL: Email credentials are missing from environment variables.");
 }
 
-// Create transporter with hardcoded connection limits to avoid hanging streams
+// Configured using standard secure Gmail SMTP ports
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
-  secure: true, // Use SSL/TLS
+  secure: true, 
   auth: {
     user: emailUser,
     pass: emailPassword,
   },
   tls: {
-    rejectUnauthorized: false // Prevents certificate rejection crashes on cloud hosts
+    rejectUnauthorized: false
   },
-  connectionTimeout: 8000, // Fail fast after 8 seconds instead of hanging
-  greetingTimeout: 8000,
-  socketTimeout: 8000,
+  connectionTimeout: 10000, 
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 export default async function sendOtpEmail(email, otp) {
@@ -282,7 +282,7 @@ export default async function sendOtpEmail(email, otp) {
     console.log("✅ OTP email sent successfully via Gmail:", result.messageId);
     return result;
   } catch (error) {
-    console.error("❌ Gmail SMTP Dispatch Failed:", error.message);
-    throw new Error(`SMTP Error: ${error.message}. (Note: If hosted on Render/Free tier, ports might be blocked).`);
+    console.error("❌ Gmail SMTP Dispatch Failed Detail:", error);
+    throw new Error(`Gmail Error: ${error.message}`);
   }
 }
