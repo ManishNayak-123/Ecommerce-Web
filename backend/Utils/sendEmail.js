@@ -291,23 +291,36 @@
 import "dotenv/config";
 import axios from "axios";
 
-const apiKey = process.env.BREVO_API_KEY?.trim();
-const senderEmail = process.env.EMAIL_USER?.trim();
-
 export default async function sendOtpEmail(email, otp) {
+  const apiKey = process.env.BREVO_API_KEY?.trim();
+  const senderEmail = process.env.EMAIL_USER?.trim();
+
+  if (!apiKey) {
+    throw new Error("BREVO_API_KEY is missing from environment variables.");
+  }
+
+  if (!senderEmail) {
+    throw new Error("EMAIL_USER (sender email) is missing from environment variables.");
+  }
+
   try {
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
-        sender: { name: "Your E-Commerce Store", email: senderEmail },
-        to: [{ email: email }],
-        subject: "Your registration OTP",
+        sender: { 
+          name: "Your E-Commerce Store", 
+          email: senderEmail 
+        },
+        to: [{ email: email.trim().toLowerCase() }],
+        subject: "Your Registration OTP",
         htmlContent: `
-          <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>Email Verification</h2>
-            <p>Your registration verification code is:</p>
-            <h1 style="letter-spacing: 6px; color: #f97316;">${otp}</h1>
-            <p>This code expires in 5 minutes.</p>
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+            <h2 style="color: #1f2937;">Email Verification</h2>
+            <p style="color: #4b5563;">Your registration verification code is:</p>
+            <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 6px; margin: 20px 0;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #f97316;">${otp}</span>
+            </div>
+            <p style="color: #6b7280; font-size: 14px;">This code expires in 5 minutes. Do not share this code with anyone.</p>
           </div>
         `,
       },
@@ -321,11 +334,11 @@ export default async function sendOtpEmail(email, otp) {
       }
     );
 
-    console.log("✅ Brevo API Response:", response.data);
+    console.log("✅ Brevo API Success Response:", response.data);
     return response.data;
   } catch (error) {
-    // 🔍 This will print the exact reason Brevo rejected the request in your server logs
-    console.error("❌ Detailed Brevo Error Response:", error.response?.data || error.message);
-    throw new Error(`Email Service Error: ${error.response?.data?.message || error.message}`);
+    const errorDetails = error.response?.data || error.message;
+    console.error("❌ Detailed Brevo API Error Rejection:", JSON.stringify(errorDetails, null, 2));
+    throw new Error(`Brevo API Error: ${typeof errorDetails === 'object' ? JSON.stringify(errorDetails) : errorDetails}`);
   }
 }
